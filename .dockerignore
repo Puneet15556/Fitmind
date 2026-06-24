@@ -1,0 +1,19 @@
+# keep the image small — exclude everything not needed at runtime
+__pycache__/
+*.pyc
+.env
+*.db
+data/raw/
+data/processed/*.jsonl
+data/processed/nutrition_seed.csv
+colab/
+scripts/seed_nutrition*.py
+scripts/gold_examples.py
+scripts/generate_*.py
+scripts/clean_groq.py
+scripts/merge_split.py
+scripts/to_chat_format.py
+scripts/test_*.py
+scripts/fm_chat.py
+.git/
+.gitignore

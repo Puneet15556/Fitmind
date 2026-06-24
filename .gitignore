@@ -1,0 +1,23 @@
+# Secrets — NEVER commit these
+.env
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Data (optional — keep processed, ignore large raw downloads)
+data/raw/*.zip
+data/raw/*.pdf
+
+# Models (large files)
+*.gguf
+*.safetensors
+*.bin
+
+# OS
+.DS_Store
+Thumbs.db

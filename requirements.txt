@@ -1,0 +1,6 @@
+# FitMind backend — production runtime dependencies
+fastapi>=0.110
+uvicorn[standard]>=0.27
+requests>=2.31
+llama-cpp-python>=0.3        # runs the GGUF in-process (Docker/cloud, backend=llamacpp)
+python-dotenv>=1.0

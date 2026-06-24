@@ -1,0 +1,39 @@
+# FitMind — HuggingFace Spaces deployment (Docker SDK).
+#
+# Differences from the local Dockerfile:
+#   - port 7860 (HF Spaces default, not 8000)
+#   - the 1.1GB model is DOWNLOADED from the HF Hub at build time
+#     (so the Space repo stays small — no need to commit the GGUF)
+#
+# Before using: upload the GGUF to the Hub, then replace HF_REPO below.
+# On the Space: rename this file to "Dockerfile".
+
+FROM python:3.12-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential cmake git wget \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY scripts/ ./scripts/
+COPY web/ ./web/
+COPY data/processed/nutrition.csv ./data/processed/nutrition.csv
+
+# --- download the fine-tuned model from the HF Hub ---
+# Your Hub model repo (already uploaded)
+ARG HF_REPO=Puneet666/fitmind-qwen-gguf
+RUN mkdir -p models && wget -q -O models/fitmind-Q4_K_M.gguf \
+    "https://huggingface.co/${HF_REPO}/resolve/main/fitmind-Q4_K_M.gguf"
+
+# run the GGUF in-process; no Ollama in the container
+ENV FITMIND_BACKEND=llamacpp
+ENV FITMIND_MODEL=/app/models/fitmind-Q4_K_M.gguf
+ENV FITMIND_CSV=/app/data/processed/nutrition.csv
+
+EXPOSE 7860
+WORKDIR /app/scripts
+CMD ["uvicorn", "fm_api:app", "--host", "0.0.0.0", "--port", "7860"]
