@@ -25,6 +25,19 @@ what fine-tuning + quantization solve.
 
 ---
 
+## 🔗 Live demo & model
+
+- **Live app (HF Space):** https://huggingface.co/spaces/Puneet666/fitmind
+- **Model + adapter (HF Hub):** https://huggingface.co/Puneet666/fitmind-qwen-gguf
+
+> ⚠️ The live Space runs on HuggingFace's **free CPU tier**, so each response
+> takes ~20-40s. This is a **zero-cost public demo** to show the project is
+> deployed and functional — *not* a performance target. The model is built for
+> **on-device** inference (a phone's NPU ≈ 1-2s) or a GPU Space; on a laptop via
+> Ollama it responds in ~5-15s (Based on your CPU).
+
+---
+
 ## ✨ What it does
 
 Type a meal in any language and get exact nutrition + a running daily total:
@@ -280,7 +293,14 @@ recommendations work with zero connectivity.
 
 ---
 
-## 🗺️ Roadmap
+## 🗺️ Planned Improvements
+
+- **Ingredient-level breakdown:** decompose composite dishes into ingredients
+  (e.g. `3 egg fried rice` → 3 eggs + rice, `shake with seeds + peanut butter` →
+  each ingredient) for finer accuracy — via a recipe map or decomposition-tuned
+  training. Currently such a dish is matched as a single item.
+- **GPU / on-device inference:** the free CPU Space is a demo; production targets
+  a GPU Space or the phone's NPU for ~1-2s responses.
 
 - **Cloud sync (Supabase):** Postgres + Auth + Row-Level-Security keyed on
   `user_id` (not IP) for multi-device sync — offline-first with opportunistic sync.
