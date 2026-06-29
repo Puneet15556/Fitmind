@@ -38,12 +38,9 @@ from fm_calories import calc_budget
 
 WEB_DIR = Path(__file__).resolve().parent.parent / "web"
 
-# --- one engine for the whole server (loaded once) -------------------
 ROOT = Path(__file__).resolve().parent.parent
 DB_PATH = ROOT / "data" / "fitmind_api.db"
-# Configurable via env vars (Docker sets these):
-#   FITMIND_BACKEND = ollama (local dev) | llamacpp (Docker/cloud, self-contained)
-#   FITMIND_MODEL   = path to the GGUF (only needed for llamacpp)
+
 BACKEND = os.environ.get("FITMIND_BACKEND", "ollama")
 MODEL_PATH = os.environ.get("FITMIND_MODEL",
                             str(ROOT / "models" / "fitmind-Q4_K_M.gguf"))
@@ -58,12 +55,10 @@ async def lifespan(app: FastAPI):
     engine = FitMindEngine(backend=BACKEND, model_path=MODEL_PATH,
                            csv_path=CSV_PATH, db_path=str(DB_PATH))
     yield
-    # (nothing to clean up)
 
 
 app = FastAPI(title="FitMind API", version="1.0", lifespan=lifespan)
 
-# allow the browser frontend to call the API (CORS)
 app.add_middleware(CORSMiddleware, allow_origins=["*"],
                    allow_methods=["*"], allow_headers=["*"])
 
@@ -73,8 +68,6 @@ def home():
     """Serve the chat web UI."""
     return FileResponse(WEB_DIR / "index.html")
 
-
-# --- request/response shapes (Pydantic validates incoming JSON) ------
 class MealRequest(BaseModel):
     user_id: int = Field(default=1, description="authenticated user id")
     text: str = Field(description="what the user ate, any language")
@@ -95,13 +88,10 @@ class CalcRequest(BaseModel):
     activity: str = "moderate"
     goal: str = "maintain"
 
-
-# --- endpoints -------------------------------------------------------
 @app.get("/health")
 def health():
     """Quick check that the server and model are reachable."""
     try:
-        # tiny model ping via the engine's model wrapper
         ok = True
         backend = engine.model.backend
     except Exception as e:
@@ -115,7 +105,6 @@ def log_meal(req: MealRequest):
     result = engine.process(req.text, user_id=req.user_id)
     if "error" in result:
         raise HTTPException(422, result["error"])
-    # strip internal _meta before returning (keep response clean)
     meta = result.pop("_meta", {})
     result["language"] = meta.get("target_lang")
     result["unmatched_items"] = meta.get("unmatched_items", [])
